@@ -5,7 +5,7 @@ find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 ########################################################################################################################
-get_filename_component(SERVICEEX_PROTO_PATH "../../dtos/servicesuiteex/serviceex.proto" ABSOLUTE)
+get_filename_component(SERVICEEX_PROTO_PATH "../dtos/servicesuiteex/serviceex.proto" ABSOLUTE)
 get_filename_component(SERVICEEX_PROTO_DIR "${SERVICEEX_PROTO_PATH}" DIRECTORY)
 find_program(PROTOC_EXECUTABLE protoc)
 find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
@@ -29,24 +29,24 @@ DEPENDS "${SERVICEEX_PROTO_PATH}"
 
 # protoc --grpc_out /home/david/projects/github-mccabe082/gRPC-example/servicesuiteex/serviceex/cmake-build-debug --cpp_out /home/david/projects/github-mccabe082/gRPC-example/servicesuiteex/serviceex/cmake-build-debug -I /home/david/projects/github-mccabe082/gRPC-example/dtos/servicesuiteex --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin /home/david/projects/github-mccabe082/gRPC-example/dtos/servicesuiteex/serviceex.proto
 
-add_executable(serviceex)
-target_sources(serviceex
+add_executable(clientex)
+target_sources(clientex
 PUBLIC
         main.cpp
-        serviceimpl.h
-        serviceimpl.cpp
+        clientex.h
+        clientex.cpp
 PRIVATE
         ${PROTO_HDRS}
         ${GRPC_HDRS}
         ${PROTO_SRCS}
         ${GRPC_SRCS}
 )
-target_include_directories(serviceex
+target_include_directories(clientex
 PUBLIC
         ${Protobuf_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR}
 )
-target_link_libraries(serviceex
+target_link_libraries(clientex
 PRIVATE
         gRPC::grpc++_reflection
         gRPC::grpc++
