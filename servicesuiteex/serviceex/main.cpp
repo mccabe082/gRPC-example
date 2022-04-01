@@ -1,7 +1,8 @@
-#include <iostream>
+#include "serviceimpl.h"
 
 int main()
 {
-    std::cout<<"hello from server"<<std::endl;
+    ServiceSuiteEx::ServiceImpl s;
+    s.run();
     return 0;
 }

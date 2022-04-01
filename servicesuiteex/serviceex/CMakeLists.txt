@@ -5,20 +5,25 @@ find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 get_filename_component(SERVICEEX_PROTO_PATH "../../dtos/servicesuiteex/serviceex.proto" ABSOLUTE)
-get_filename_component(SERVICEEX_PROTO_DIR  "../../dtos/servicesuiteex/serviceex.proto" PATH)
+get_filename_component(SERVICEEX_PROTO_DIR "${SERVICEEX_PROTO_PATH}" DIRECTORY)
 find_program(PROTOC_EXECUTABLE protoc)
 find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
+set(PROTO_SRCS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.cc")
+set(PROTO_HDRS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.h")
+set(GRPC_SRCS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.cc")
+set(GRPC_HDRS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.h")
 add_custom_command(
 OUTPUT "${PROTO_SRCS}" "${PROTO_HDRS}" "${GRPC_SRCS}" "${GRPC_HDRS}"
 COMMAND ${PROTOC_EXECUTABLE}
 ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
      --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
      -I "${SERVICEEX_PROTO_DIR}"
-     --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+     --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN_EXECUTABLE}"
      "${SERVICEEX_PROTO_PATH}"
 DEPENDS "${SERVICEEX_PROTO_PATH}"
 )
+
 
 # protoc --grpc_out /home/david/projects/github-mccabe082/gRPC-example/servicesuiteex/serviceex/cmake-build-debug --cpp_out /home/david/projects/github-mccabe082/gRPC-example/servicesuiteex/serviceex/cmake-build-debug -I /home/david/projects/github-mccabe082/gRPC-example/dtos/servicesuiteex --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin /home/david/projects/github-mccabe082/gRPC-example/dtos/servicesuiteex/serviceex.proto
 
@@ -28,9 +33,11 @@ PUBLIC
         main.cpp
         serviceimpl.h
         serviceimpl.cpp
+PRIVATE
         ${PROTO_HDRS}
+        ${GRPC_HDRS}
         ${PROTO_SRCS}
-        ${SERVICEEX_PROTO_PATH}
+        ${GRPC_SRCS}
 )
 target_include_directories(serviceex
 PUBLIC
@@ -38,11 +45,10 @@ PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
 )
 target_link_libraries(serviceex
-PUBLIC
-        ${Protobuf_LIBRARIES}
+PRIVATE
         gRPC::grpc++_reflection
         gRPC::grpc++
         protobuf::libprotobuf
 )
 
-message(STATUS ${Protobuf_LIBRARIES})
+message(STATUS ${GRPC_CPP_PLUGIN_EXECUTABLE})
