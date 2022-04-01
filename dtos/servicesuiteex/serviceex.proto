@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package ServiceSuiteEx;
+
+service ServiceEx
+{
+  rpc requestEx (RequestMsgEx) returns (ResponseMsgEx) {}
+}
+
+message RequestMsgEx {
+  string foo = 1;
+}
+
+message ResponseMsgEx {
+  string bar = 1;
+}
