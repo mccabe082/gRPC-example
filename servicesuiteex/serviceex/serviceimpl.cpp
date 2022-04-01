@@ -1,13 +1,6 @@
 #include "serviceimpl.h"
 #include <string>
 
-using grpc::Server;
-using grpc::ServerAsyncResponseWriter;
-using grpc::ServerBuilder;
-using grpc::ServerCompletionQueue;
-using grpc::ServerContext;
-using grpc::Status;
-
 namespace
 {
     const std::string SERVER_ADDRESS = "0.0.0.0:50051";
@@ -15,23 +8,23 @@ namespace
 
 namespace ServiceSuiteEx
 {
-
+    grpc::Status ServiceImpl::requestEx(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply)
+    {
+        const std::string msg = request->foo();
+        reply->set_bar(msg);
+        return grpc::Status::OK;
+    }
 
     void ServiceImpl::run()
     {
-        ServerBuilder builder;
+        ServiceImpl serviceInstance;
+        grpc::EnableDefaultHealthCheckService(true);
+        //grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+        grpc::ServerBuilder builder;
         builder.AddListeningPort(SERVER_ADDRESS, grpc::InsecureServerCredentials());
-        // Register "service_" as the instance through which we'll communicate with
-        // clients. In this case it corresponds to an *asynchronous* service.
-        builder.RegisterService(&service_);
-        // Get hold of the completion queue used for the asynchronous communication
-        // with the gRPC runtime.
-        cq_ = builder.AddCompletionQueue();
-        // Finally assemble the server.
-        server_ = builder.BuildAndStart();
-        std::cout << "Server listening on " << server_address << std::endl;
-
-        // Proceed to the server's main loop.
-        HandleRpcs();
+        builder.RegisterService(&serviceInstance);
+        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+        std::cout << "Server listening on " << SERVER_ADDRESS << std::endl;
+        server->Wait();
     }
 }
