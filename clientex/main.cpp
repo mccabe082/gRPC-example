@@ -2,7 +2,7 @@
 
 int main()
 {
-    ClientEx s(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
+    ClientEx s;
     s.demonstrateRemoteProcedureCall();
     return 0;
 }

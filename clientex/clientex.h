@@ -7,9 +7,10 @@
 class ClientEx
 {
 public:
-    ClientEx(std::shared_ptr<grpc::Channel> channel);
+    ClientEx();
     void demonstrateRemoteProcedureCall();
 private:
     std::unique_ptr<ServiceSuiteEx::ServiceEx::Stub> _stub;
+    std::unique_ptr<grpc::ClientContext> _context;
 };
 
