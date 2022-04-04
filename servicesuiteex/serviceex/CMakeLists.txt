@@ -5,24 +5,25 @@ find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 ########################################################################################################################
+# Generate gRPC/Proto files
 get_filename_component(SERVICEEX_PROTO_PATH "../../dtos/servicesuiteex/serviceex.proto" ABSOLUTE)
 get_filename_component(SERVICEEX_PROTO_DIR "${SERVICEEX_PROTO_PATH}" DIRECTORY)
 find_program(PROTOC_EXECUTABLE protoc)
 find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
-set(PROTO_SRCS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.cc")
-set(PROTO_HDRS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.h")
-set(GRPC_SRCS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.cc")
-set(GRPC_HDRS "${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.h")
 add_custom_command(
-OUTPUT "${PROTO_SRCS}" "${PROTO_HDRS}" "${GRPC_SRCS}" "${GRPC_HDRS}"
-COMMAND ${PROTOC_EXECUTABLE}
-ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-     --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-     -I "${SERVICEEX_PROTO_DIR}"
-     --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN_EXECUTABLE}"
-     "${SERVICEEX_PROTO_PATH}"
-DEPENDS "${SERVICEEX_PROTO_PATH}"
+        OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.h
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.h
+        COMMAND ${PROTOC_EXECUTABLE}
+        ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+        -I "${SERVICEEX_PROTO_DIR}"
+        --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${SERVICEEX_PROTO_PATH}"
+        DEPENDS "${SERVICEEX_PROTO_PATH}"
 )
 ########################################################################################################################
 
@@ -36,10 +37,10 @@ PUBLIC
         serviceimpl.h
         serviceimpl.cpp
 PRIVATE
-        ${PROTO_HDRS}
-        ${GRPC_HDRS}
-        ${PROTO_SRCS}
-        ${GRPC_SRCS}
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.h
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.h
 )
 target_include_directories(serviceex
 PUBLIC
