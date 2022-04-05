@@ -60,7 +60,7 @@ namespace ServiceSuiteEx
     grpc::Status ServiceImpl::serverStreamingRPC(grpc::ServerContext* context, const RequestMsgEx* request, grpc::ServerWriter<ResponseMsgEx>* writer)
     {
         std::cout << "\nServer streaming to Client:" << std::endl;
-        static int i = 0;
+        int i = 0;
         while (i<10)
         {
             ResponseMsgEx response;
@@ -90,7 +90,7 @@ namespace ServiceSuiteEx
     grpc::Status ServiceImpl::bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, RequestMsgEx>* stream)
     {
         std::cout << "\nServer receiving/sending stream from/to Client:\n\t" << std::flush;
-        static int i = 0;
+        int i = 0;
         RequestMsgEx request;
         while (stream->Read(&request))
         {

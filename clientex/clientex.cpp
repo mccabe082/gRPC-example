@@ -74,7 +74,7 @@ void ClientEx::callUnaryRPCWithMetaData()
 
 void ClientEx::callServerStreamingRPC()
 {
-    std::cout << "Client requesting stream from server:" << std::endl;
+    std::cout << "Client requesting stream from server:\n\t" << std::flush;
     grpc::ClientContext c;
     const ServiceSuiteEx::RequestMsgEx request;
     ServiceSuiteEx::ResponseMsgEx response;
@@ -84,6 +84,7 @@ void ClientEx::callServerStreamingRPC()
     {
         std::cout << response.bar() << "." << std::flush;
     }
+    std::cout << std::endl;
     grpc::Status status = reader->Finish();
 
     if (status.ok()) {
