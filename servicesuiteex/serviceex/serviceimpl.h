@@ -8,7 +8,7 @@ namespace ServiceSuiteEx
     class ServiceImpl final : public ServiceEx::Service
     {
     public:
-        grpc::Status requestEx(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply) override;
+        grpc::Status unaryRPC(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply) override;
         void run();
     };
 }

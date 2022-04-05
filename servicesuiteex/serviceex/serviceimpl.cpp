@@ -1,6 +1,7 @@
 #include "serviceimpl.h"
 #include <string>
 #include <iostream>
+
 namespace
 {
     const std::string SERVER_ADDRESS = "0.0.0.0:50051";
@@ -25,11 +26,30 @@ namespace
 
 namespace ServiceSuiteEx
 {
-    grpc::Status ServiceImpl::requestEx(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply)
+    grpc::Status ServiceImpl::unaryRPC(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply)
     {
+        // 1. Read client metadata
+        using ClientMetadata = const std::multimap<grpc::string_ref, grpc::string_ref>;
+        ClientMetadata clientDat = context->client_metadata();
+        for (auto pair : clientDat)
+        {
+            std::cout << "Header key: " << pair.first << ", value: " << pair.second << std::endl;
+        }
+
+//        // 2. Write server initial metadata
+//        context->AddInitialMetadata("server-initial-metadata-key1","server initial metadata value1");
+//        context->AddInitialMetadata("server-initial-metadata-key2","server initial metadata value2");
+
+        // 3. Write server trailing metadata
+        context->AddTrailingMetadata("server-trailing-metadata-key1","server trailing metadata value1");
+        context->AddTrailingMetadata("server-trailing-metadata-key2","server trailing metadata value2");
+
+        // 4. Read request/write response
         const std::string msg = request->foo();
         std::cout << msg << std::endl;
-        reply->set_bar(msg);
+        reply->set_bar("pong");
+
+        // Return code
         return grpc::Status::OK;
     }
 

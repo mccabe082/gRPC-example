@@ -1,8 +1,7 @@
 #include "clientex.h"
-
 int main()
 {
     ClientEx s;
-    s.demonstrateRemoteProcedureCall();
+    s.callUnaryRPCWithMetaData();
     return 0;
 }

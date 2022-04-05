@@ -4,5 +4,6 @@ int main()
 {
     ServiceSuiteEx::ServiceImpl s;
     s.run();
+
     return 0;
 }

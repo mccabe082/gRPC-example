@@ -4,7 +4,7 @@ package ServiceSuiteEx;
 
 service ServiceEx
 {
-  rpc requestEx (RequestMsgEx) returns (ResponseMsgEx) {}
+  rpc unaryRPC (RequestMsgEx) returns (ResponseMsgEx) {}
 }
 
 message RequestMsgEx {
