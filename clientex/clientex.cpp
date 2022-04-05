@@ -2,17 +2,6 @@
 
 namespace
 {
-    std::unique_ptr<grpc::ClientContext> createContext()
-    {
-        // https://grpc.github.io/grpc/cpp/classgrpc_1_1_client_context.html
-        // https://grpc.io/docs/what-is-grpc/core-concepts/#metadata
-
-        auto c = std::make_unique<grpc::ClientContext>();
-        c->set_compression_algorithm(GRPC_COMPRESS_DEFLATE);
-
-        return c;
-    }
-
     grpc::ChannelArguments channelOptions()
     {
         // https://grpc.github.io/grpc/cpp/classgrpc_1_1_channel_arguments.html
@@ -35,9 +24,7 @@ namespace
     }
 }
 
-ClientEx::ClientEx() :
-    _stub(ServiceSuiteEx::ServiceEx::NewStub(createChannel())),
-    _context(createContext())
+ClientEx::ClientEx() : _stub(ServiceSuiteEx::ServiceEx::NewStub(createChannel()))
 {}
 
 void ClientEx::callUnaryRPCWithMetaData()
@@ -48,24 +35,27 @@ void ClientEx::callUnaryRPCWithMetaData()
     request.set_foo("echo");
     ServiceSuiteEx::ResponseMsgEx response;
 
+    grpc::ClientContext c;
+    c.set_compression_algorithm(GRPC_COMPRESS_DEFLATE);
+
     // 1. Add Client Metadata
-    _context->AddMetadata("client-metadata-key1", "client metadata value1");
-    _context->AddMetadata("client-metadata-key2", "client metadata value2");
+    c.AddMetadata("client-metadata-key1", "client metadata value1");
+    c.AddMetadata("client-metadata-key2", "client metadata value2");
 
     // 2. Remote procedure call on stub
-    grpc::Status ier = _stub->unaryRPC(_context.get(), request, &response);
+    grpc::Status ier = _stub->unaryRPC(&c, request, &response);
 
     if (ier.ok())
     {
         // 3. Access Initial Server Metadata
-        const auto& initMetadata =  _context->GetServerInitialMetadata();
+        const auto& initMetadata =  c.GetServerInitialMetadata();
         std::cout << "\nClient received initial metadata from server: " << std::endl;
         std::cout << initMetadata.find("server-initial-metadata-key1")->second << std::endl;
         std::cout << initMetadata.find("server-initial-metadata-key2")->second << std::endl;
         std::cout << std::endl;
 
         // 4. Access Trailing Server Metadata
-        const auto& trailingMetadata =  _context->GetServerTrailingMetadata();
+        const auto& trailingMetadata =  c.GetServerTrailingMetadata();
         std::cout << "Client received trailing metadata from server: " << std::endl;
         std::cout << trailingMetadata.find("server-trailing-metadata-key1")->second << std::endl;
         std::cout << trailingMetadata.find("server-trailing-metadata-key2")->second << std::endl;

@@ -11,6 +11,5 @@ public:
     void callUnaryRPCWithMetaData();
 private:
     std::unique_ptr<ServiceSuiteEx::ServiceEx::Stub> _stub;
-    std::unique_ptr<grpc::ClientContext> _context;
 };
 
