@@ -57,20 +57,24 @@ void ClientEx::callUnaryRPCWithMetaData()
 
     if (ier.ok())
     {
-//        // 3. Access Initial Server Metadata
-//        const auto& initMetadata =  context->GetServerInitialMetadata();
-//        std::cout << "Client received initial metadata from server: " << std::endl;
-//        std::cout << initMetadata.find("server-initial-metadata-key1")->second << std::endl;
-//        std::cout << initMetadata.find("server-initial-metadata-key2")->second << std::endl;
+        // 3. Access Initial Server Metadata
+        const auto& initMetadata =  _context->GetServerInitialMetadata();
+        std::cout << "\nClient received initial metadata from server: " << std::endl;
+        std::cout << initMetadata.find("server-initial-metadata-key1")->second << std::endl;
+        std::cout << initMetadata.find("server-initial-metadata-key2")->second << std::endl;
+        std::cout << std::endl;
 
         // 4. Access Trailing Server Metadata
         const auto& trailingMetadata =  _context->GetServerTrailingMetadata();
         std::cout << "Client received trailing metadata from server: " << std::endl;
         std::cout << trailingMetadata.find("server-trailing-metadata-key1")->second << std::endl;
         std::cout << trailingMetadata.find("server-trailing-metadata-key2")->second << std::endl;
+        std::cout << std::endl;
 
         // 5. Access RPC Message
+        std::cout << "Client received following response from server: " << std::endl;
         std::cout<<response.bar()<<std::endl;
+        std::cout << std::endl;
 
         return;
     }

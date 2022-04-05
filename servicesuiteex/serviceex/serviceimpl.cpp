@@ -33,12 +33,14 @@ namespace ServiceSuiteEx
         ClientMetadata clientDat = context->client_metadata();
         for (auto pair : clientDat)
         {
+            std::cout << "Server received Client Metadata:" << std::endl;
             std::cout << "Header key: " << pair.first << ", value: " << pair.second << std::endl;
+            std::cout << std::endl;
         }
 
-//        // 2. Write server initial metadata
-//        context->AddInitialMetadata("server-initial-metadata-key1","server initial metadata value1");
-//        context->AddInitialMetadata("server-initial-metadata-key2","server initial metadata value2");
+        // 2. Write server initial metadata
+        context->AddInitialMetadata("server-initial-metadata-key1","server initial metadata value1");
+        context->AddInitialMetadata("server-initial-metadata-key2","server initial metadata value2");
 
         // 3. Write server trailing metadata
         context->AddTrailingMetadata("server-trailing-metadata-key1","server trailing metadata value1");
@@ -46,7 +48,9 @@ namespace ServiceSuiteEx
 
         // 4. Read request/write response
         const std::string msg = request->foo();
+        std::cout << "Server received request from Client:" << std::endl;
         std::cout << msg << std::endl;
+        std::cout << std::endl;
         reply->set_bar("pong");
 
         // Return code
