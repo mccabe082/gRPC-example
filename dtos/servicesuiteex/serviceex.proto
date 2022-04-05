@@ -5,6 +5,9 @@ package ServiceSuiteEx;
 service ServiceEx
 {
   rpc unaryRPC (RequestMsgEx) returns (ResponseMsgEx) {}
+  rpc serverStreamingRPC (RequestMsgEx) returns (stream ResponseMsgEx) {}
+  rpc clientStreamingRPC (stream RequestMsgEx) returns (ResponseMsgEx) {}
+  rpc bidirectionalStreamingRPC (stream RequestMsgEx) returns (stream ResponseMsgEx) {}
 }
 
 message RequestMsgEx {

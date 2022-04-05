@@ -50,20 +50,20 @@ void ClientEx::callUnaryRPCWithMetaData()
         // 3. Access Initial Server Metadata
         const auto& initMetadata =  c.GetServerInitialMetadata();
         std::cout << "\nClient received initial metadata from server: " << std::endl;
-        std::cout << initMetadata.find("server-initial-metadata-key1")->second << std::endl;
-        std::cout << initMetadata.find("server-initial-metadata-key2")->second << std::endl;
+        std::cout << "\t" << initMetadata.find("server-initial-metadata-key1")->second << std::endl;
+        std::cout << "\t" << initMetadata.find("server-initial-metadata-key2")->second << std::endl;
         std::cout << std::endl;
 
         // 4. Access Trailing Server Metadata
         const auto& trailingMetadata =  c.GetServerTrailingMetadata();
         std::cout << "Client received trailing metadata from server: " << std::endl;
-        std::cout << trailingMetadata.find("server-trailing-metadata-key1")->second << std::endl;
-        std::cout << trailingMetadata.find("server-trailing-metadata-key2")->second << std::endl;
+        std::cout << "\t" << trailingMetadata.find("server-trailing-metadata-key1")->second << std::endl;
+        std::cout << "\t" << trailingMetadata.find("server-trailing-metadata-key2")->second << std::endl;
         std::cout << std::endl;
 
         // 5. Access RPC Message
         std::cout << "Client received following response from server: " << std::endl;
-        std::cout<<response.bar()<<std::endl;
+        std::cout << "\t[" << response.bar() << "]" << std::endl;
         std::cout << std::endl;
 
         return;
@@ -72,4 +72,80 @@ void ClientEx::callUnaryRPCWithMetaData()
     std::cout << ier.error_code() << ": " << ier.error_message();
 }
 
+void ClientEx::callServerStreamingRPC()
+{
+    std::cout << "Client requesting stream from server:" << std::endl;
+    grpc::ClientContext c;
+    const ServiceSuiteEx::RequestMsgEx request;
+    ServiceSuiteEx::ResponseMsgEx response;
 
+    std::unique_ptr<grpc::ClientReader<ServiceSuiteEx::ResponseMsgEx>> reader(_stub->serverStreamingRPC(&c,request));
+    while (reader->Read(&response))
+    {
+        std::cout << response.bar() << "." << std::flush;
+    }
+    grpc::Status status = reader->Finish();
+
+    if (status.ok()) {
+        std::cout << "\t...streaming complete\n\n" << std::flush;
+        return;
+    }
+
+    std::cout << status.error_code() << ": " << status.error_message();
+}
+
+void ClientEx::callClientStreamingRPC()
+{
+    std::cout << "Client requesting stream to server:" << std::endl;
+    grpc::ClientContext c;
+    ServiceSuiteEx::RequestMsgEx request;
+    ServiceSuiteEx::ResponseMsgEx response;
+
+    std::unique_ptr<grpc::ClientWriter<ServiceSuiteEx::RequestMsgEx>> writer(_stub->clientStreamingRPC(&c,&response));
+    for (int i = 0; i<10; ++i)
+    {
+        request.set_foo(std::to_string(i));
+        writer->Write(request);
+    }
+
+    writer->WritesDone();
+    grpc::Status status = writer->Finish();
+
+    if (status.ok())
+    {
+        std::cout << "\t...streaming complete\n\n" << std::flush;
+        return;
+    }
+
+    std::cout << status.error_code() << ": " << status.error_message();
+}
+
+
+void ClientEx::callBidirectionalStreamingRPC()
+{
+    std::cout << "Client requesting bi-directional stream with server:\n\t" << std::flush;
+    grpc::ClientContext c;
+    ServiceSuiteEx::RequestMsgEx request;
+    ServiceSuiteEx::ResponseMsgEx response;
+    auto&& stream = _stub->bidirectionalStreamingRPC(&c);
+
+    for (int i = 0; i<10; ++i)
+    {
+        request.set_foo(std::to_string(i));
+        stream->Write(request);
+        stream->Read(&response);
+        std::cout << response.bar() << "." << std::flush;
+    }
+    std::cout << std::endl;
+
+    stream->WritesDone();
+    grpc::Status status = stream->Finish();
+
+    if (status.ok())
+    {
+        std::cout << "\t...streaming complete\n\n" << std::flush;
+        return;
+    }
+
+    std::cout << status.error_code() << ": " << status.error_message();
+}

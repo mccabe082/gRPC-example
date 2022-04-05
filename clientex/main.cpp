@@ -2,17 +2,14 @@
 int main()
 {
     ClientEx s;
+
     s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
-    s.callUnaryRPCWithMetaData();
+
+    s.callServerStreamingRPC();
+
+    s.callClientStreamingRPC();
+
+    s.callBidirectionalStreamingRPC();
+
     return 0;
 }
