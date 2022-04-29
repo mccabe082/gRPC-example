@@ -9,6 +9,8 @@ class ClientEx
 public:
     ClientEx();
     void callUnaryRPCWithMetaData();
+    void callUnaryRPCWithMetaData_ASyncClient();
+
     void callServerStreamingRPC();
     void callClientStreamingRPC();
     void callBidirectionalStreamingRPC();

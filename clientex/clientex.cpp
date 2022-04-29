@@ -72,6 +72,33 @@ void ClientEx::callUnaryRPCWithMetaData()
     std::cout << ier.error_code() << ": " << ier.error_message();
 }
 
+void ClientEx::callUnaryRPCWithMetaData_ASyncClient()
+{
+    ServiceSuiteEx::RequestMsgEx request;
+    ServiceSuiteEx::ResponseMsgEx response;
+    grpc::ClientContext context;
+    grpc::CompletionQueue cq; // The producer-consumer queue we use to communicate asynchronously with the gRPC runtime.
+    grpc::Status status;
+
+    using DeferredResponse = std::unique_ptr<grpc::ClientAsyncResponseReader<ServiceSuiteEx::ResponseMsgEx>>;
+    DeferredResponse nonBlockingRPC(_stub->PrepareAsyncunaryRPC(&context, request, &cq));
+
+    bool ok = false;
+    std::string tag("Super RPC");
+    void* RPCOutID = &tag;
+    void* RPCInID = nullptr;
+    nonBlockingRPC->StartCall();
+    nonBlockingRPC->Finish(&response, &status, RPCOutID);
+
+    GPR_ASSERT(cq.Next(&RPCInID, &ok));
+    GPR_ASSERT(RPCInID == RPCOutID);
+    GPR_ASSERT(ok);
+
+    std::cout << (status.ok() ? response.bar() : "error") << std::endl;
+
+    return;
+}
+
 void ClientEx::callServerStreamingRPC()
 {
     std::cout << "Client requesting stream from server:\n\t" << std::flush;

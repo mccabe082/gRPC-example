@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 
+
 namespace
 {
     const std::string SERVER_ADDRESS = "0.0.0.0:50051";
