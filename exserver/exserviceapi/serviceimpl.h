@@ -1,11 +1,11 @@
 #pragma once
-#include "serviceex.grpc.pb.h"
+#include "exserviceapi.grpc.pb.h"
 #include <grpcpp/grpcpp.h>
 #include <string>
 
-namespace ServiceSuiteEx
+namespace ExServer
 {
-    class ServiceImpl final : public ServiceEx::Service
+    class ServiceEndPoints final : public ExServiceAPI::Service
     {
     public:
         grpc::Status unaryRPC(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply) override;
@@ -15,7 +15,5 @@ namespace ServiceSuiteEx
         grpc::Status clientStreamingRPC(grpc::ServerContext* context, grpc::ServerReader<RequestMsgEx>* reader, ResponseMsgEx* response) override;
 
         grpc::Status bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, RequestMsgEx>* stream) override;
-
-        void run();
     };
 }

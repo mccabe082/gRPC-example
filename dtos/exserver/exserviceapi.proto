@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package ServiceSuiteEx;
+package ExServer;
 
-service ServiceEx
+service ExServiceAPI
 {
   rpc unaryRPC (RequestMsgEx) returns (ResponseMsgEx) {}
   rpc serverStreamingRPC (RequestMsgEx) returns (stream ResponseMsgEx) {}

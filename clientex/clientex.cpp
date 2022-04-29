@@ -24,16 +24,16 @@ namespace
     }
 }
 
-ClientEx::ClientEx() : _stub(ServiceSuiteEx::ServiceEx::NewStub(createChannel()))
+ClientEx::ClientEx() : _stub(ExServer::ExServiceAPI::NewStub(createChannel()))
 {}
 
 void ClientEx::callUnaryRPCWithMetaData()
 {
     // https://grpc.io/docs/what-is-grpc/core-concepts/#unary-rpc
 
-    ServiceSuiteEx::RequestMsgEx request;
+    ExServer::RequestMsgEx request;
     request.set_foo("echo");
-    ServiceSuiteEx::ResponseMsgEx response;
+    ExServer::ResponseMsgEx response;
 
     grpc::ClientContext c;
     c.set_compression_algorithm(GRPC_COMPRESS_DEFLATE);
@@ -74,13 +74,13 @@ void ClientEx::callUnaryRPCWithMetaData()
 
 void ClientEx::callUnaryRPCWithMetaData_ASyncClient()
 {
-    ServiceSuiteEx::RequestMsgEx request;
-    ServiceSuiteEx::ResponseMsgEx response;
+    ExServer::RequestMsgEx request;
+    ExServer::ResponseMsgEx response;
     grpc::ClientContext context;
     grpc::CompletionQueue cq; // The producer-consumer queue we use to communicate asynchronously with the gRPC runtime.
     grpc::Status status;
 
-    using DeferredResponse = std::unique_ptr<grpc::ClientAsyncResponseReader<ServiceSuiteEx::ResponseMsgEx>>;
+    using DeferredResponse = std::unique_ptr<grpc::ClientAsyncResponseReader<ExServer::ResponseMsgEx>>;
     DeferredResponse nonBlockingRPC(_stub->PrepareAsyncunaryRPC(&context, request, &cq));
 
     bool ok = false;
@@ -103,10 +103,10 @@ void ClientEx::callServerStreamingRPC()
 {
     std::cout << "Client requesting stream from server:\n\t" << std::flush;
     grpc::ClientContext c;
-    const ServiceSuiteEx::RequestMsgEx request;
-    ServiceSuiteEx::ResponseMsgEx response;
+    const ExServer::RequestMsgEx request;
+    ExServer::ResponseMsgEx response;
 
-    std::unique_ptr<grpc::ClientReader<ServiceSuiteEx::ResponseMsgEx>> reader(_stub->serverStreamingRPC(&c,request));
+    std::unique_ptr<grpc::ClientReader<ExServer::ResponseMsgEx>> reader(_stub->serverStreamingRPC(&c,request));
     while (reader->Read(&response))
     {
         std::cout << response.bar() << "." << std::flush;
@@ -126,10 +126,10 @@ void ClientEx::callClientStreamingRPC()
 {
     std::cout << "Client requesting stream to server:" << std::endl;
     grpc::ClientContext c;
-    ServiceSuiteEx::RequestMsgEx request;
-    ServiceSuiteEx::ResponseMsgEx response;
+    ExServer::RequestMsgEx request;
+    ExServer::ResponseMsgEx response;
 
-    std::unique_ptr<grpc::ClientWriter<ServiceSuiteEx::RequestMsgEx>> writer(_stub->clientStreamingRPC(&c,&response));
+    std::unique_ptr<grpc::ClientWriter<ExServer::RequestMsgEx>> writer(_stub->clientStreamingRPC(&c,&response));
     for (int i = 0; i<10; ++i)
     {
         request.set_foo(std::to_string(i));
@@ -153,8 +153,8 @@ void ClientEx::callBidirectionalStreamingRPC()
 {
     std::cout << "Client requesting bi-directional stream with server:\n\t" << std::flush;
     grpc::ClientContext c;
-    ServiceSuiteEx::RequestMsgEx request;
-    ServiceSuiteEx::ResponseMsgEx response;
+    ExServer::RequestMsgEx request;
+    ExServer::ResponseMsgEx response;
     auto&& stream = _stub->bidirectionalStreamingRPC(&c);
 
     for (int i = 0; i<10; ++i)

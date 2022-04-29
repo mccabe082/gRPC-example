@@ -2,32 +2,9 @@
 #include <string>
 #include <iostream>
 
-
-namespace
+namespace ExServer
 {
-    const std::string SERVER_ADDRESS = "0.0.0.0:50051";
-
-    std::unique_ptr<grpc::ServerContext> createContext()
-    {
-        // https://grpc.github.io/grpc/cpp/classgrpc_1_1_server_context.html
-        // https://grpc.io/docs/what-is-grpc/core-concepts/#metadata
-
-        auto c = std::make_unique<grpc::ServerContext>();
-        c->set_compression_algorithm(GRPC_COMPRESS_DEFLATE);
-        return c;
-    }
-
-    void configureServer(grpc::ServerBuilder& b)
-    {
-        // https://grpc.github.io/grpc/cpp/classgrpc_1_1_server_builder.html
-        b.AddListeningPort(SERVER_ADDRESS, grpc::InsecureServerCredentials());
-        b.SetDefaultCompressionAlgorithm(GRPC_COMPRESS_GZIP);
-    }
-}
-
-namespace ServiceSuiteEx
-{
-    grpc::Status ServiceImpl::unaryRPC(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply)
+    grpc::Status ServiceEndPoints::unaryRPC(grpc::ServerContext* context, const RequestMsgEx* request, ResponseMsgEx* reply)
     {
         // 1. Read client metadata
         using ClientMetadata = const std::multimap<grpc::string_ref, grpc::string_ref>;
@@ -58,7 +35,7 @@ namespace ServiceSuiteEx
         return grpc::Status::OK;
     }
 
-    grpc::Status ServiceImpl::serverStreamingRPC(grpc::ServerContext* context, const RequestMsgEx* request, grpc::ServerWriter<ResponseMsgEx>* writer)
+    grpc::Status ServiceEndPoints::serverStreamingRPC(grpc::ServerContext* context, const RequestMsgEx* request, grpc::ServerWriter<ResponseMsgEx>* writer)
     {
         std::cout << "\nServer streaming to Client:" << std::endl;
         int i = 0;
@@ -73,7 +50,7 @@ namespace ServiceSuiteEx
         return grpc::Status::OK;
     }
 
-    grpc::Status ServiceImpl::clientStreamingRPC(grpc::ServerContext* context, grpc::ServerReader<RequestMsgEx>* reader, ResponseMsgEx* response)
+    grpc::Status ServiceEndPoints::clientStreamingRPC(grpc::ServerContext* context, grpc::ServerReader<RequestMsgEx>* reader, ResponseMsgEx* response)
     {
         std::cout << "\nServer receiving stream from Client:\n\t" << std::flush;
         static int i = 0;
@@ -88,7 +65,7 @@ namespace ServiceSuiteEx
         return grpc::Status::OK;
     }
 
-    grpc::Status ServiceImpl::bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, RequestMsgEx>* stream)
+    grpc::Status ServiceEndPoints::bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, RequestMsgEx>* stream)
     {
         std::cout << "\nServer receiving/sending stream from/to Client:\n\t" << std::flush;
         int i = 0;
@@ -102,18 +79,5 @@ namespace ServiceSuiteEx
         std::cout << "\n\t...streaming complete\n\n" << std::flush;
 
         return grpc::Status::OK;
-    }
-
-    void ServiceImpl::run()
-    {
-        ServiceImpl serviceInstance;
-        grpc::EnableDefaultHealthCheckService(true);
-        //grpc::reflection::InitProtoReflectionServerBuilderPlugin();
-        grpc::ServerBuilder builder;
-        configureServer(builder);
-        builder.RegisterService(&serviceInstance);
-        std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-        std::cout << "Server listening on " << SERVER_ADDRESS << std::endl;
-        server->Wait();
     }
 }

@@ -2,7 +2,7 @@
 #include <memory>
 #include <iostream>
 #include <grpcpp/grpcpp.h>
-#include "serviceex.grpc.pb.h"
+#include "exserviceapi.grpc.pb.h"
 
 class ClientEx
 {
@@ -15,5 +15,5 @@ public:
     void callClientStreamingRPC();
     void callBidirectionalStreamingRPC();
 private:
-    std::unique_ptr<ServiceSuiteEx::ServiceEx::Stub> _stub;
+    std::unique_ptr<ExServer::ExServiceAPI::Stub> _stub;
 };

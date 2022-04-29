@@ -6,17 +6,17 @@ find_package(gRPC CONFIG REQUIRED)
 
 ########################################################################################################################
 # Generate gRPC/Proto files
-get_filename_component(SERVICEEX_PROTO_PATH "../dtos/servicesuiteex/serviceex.proto" ABSOLUTE)
+get_filename_component(SERVICEEX_PROTO_PATH "../dtos/exserver/exserviceapi.proto" ABSOLUTE)
 get_filename_component(SERVICEEX_PROTO_DIR "${SERVICEEX_PROTO_PATH}" DIRECTORY)
 find_program(PROTOC_EXECUTABLE protoc)
 find_program(GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 
 add_custom_command(
 OUTPUT
-     ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.cc
-     ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.h
-     ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.cc
-     ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.h
+     ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.pb.cc
+     ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.pb.h
+     ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.grpc.pb.cc
+     ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.grpc.pb.h
 COMMAND ${PROTOC_EXECUTABLE}
 ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
      --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
@@ -28,7 +28,7 @@ DEPENDS "${SERVICEEX_PROTO_PATH}"
 ########################################################################################################################
 
 
-# protoc --grpc_out /home/david/projects/github-mccabe082/gRPC-example/servicesuiteex/serviceex/cmake-build-debug --cpp_out /home/david/projects/github-mccabe082/gRPC-example/servicesuiteex/serviceex/cmake-build-debug -I /home/david/projects/github-mccabe082/gRPC-example/dtos/servicesuiteex --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin /home/david/projects/github-mccabe082/gRPC-example/dtos/servicesuiteex/serviceex.proto
+# protoc --grpc_out /home/david/projects/github-mccabe082/gRPC-example/exserver/exserviceapi/cmake-build-debug --cpp_out /home/david/projects/github-mccabe082/gRPC-example/exserver/exserviceapi/cmake-build-debug -I /home/david/projects/github-mccabe082/gRPC-example/dtos/exserver --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin /home/david/projects/github-mccabe082/gRPC-example/dtos/exserver/exserviceapi.proto
 
 add_executable(clientex)
 target_sources(clientex
@@ -37,10 +37,10 @@ PUBLIC
         clientex.h
         clientex.cpp
 PRIVATE
-        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.cc
-        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.pb.h
-        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.cc
-        ${CMAKE_CURRENT_BINARY_DIR}/serviceex.grpc.pb.h
+        ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.pb.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.pb.h
+        ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.grpc.pb.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/exserviceapi.grpc.pb.h
 )
 target_include_directories(clientex
 PUBLIC
