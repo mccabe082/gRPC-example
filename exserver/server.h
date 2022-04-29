@@ -1,6 +1,6 @@
 #pragma once
 #include <grpcpp/grpcpp.h>
-#include "exserviceapi/serviceimpl.h"
+#include "exserviceapi/serviceendpoints.h"
 
 namespace ExServer
 {
