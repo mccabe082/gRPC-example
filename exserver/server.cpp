@@ -2,8 +2,6 @@
 
 namespace
 {
-    const std::string SERVER_ADDRESS = "0.0.0.0:50051";
-
     std::unique_ptr<grpc::ServerContext> createContext()
     {
         // https://grpc.github.io/grpc/cpp/classgrpc_1_1_server_context.html
@@ -17,18 +15,21 @@ namespace
 
 namespace ExServer
 {
-    void Server::run()
+    Server::Server(const std::string& serverAddress) : SERVER_ADDRESS(serverAddress)
     {
+        // not entirely sure what this line does atm...
         grpc::EnableDefaultHealthCheckService(true);
 
-        grpc::ServerBuilder b;
-        b.AddListeningPort(SERVER_ADDRESS, grpc::InsecureServerCredentials());
-        b.SetDefaultCompressionAlgorithm(GRPC_COMPRESS_GZIP);
+        mServiceBuilder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
+        mServiceBuilder.SetDefaultCompressionAlgorithm(GRPC_COMPRESS_GZIP);
 
         mExService = std::make_unique<ServiceEndPoints>();
-        b.RegisterService(mExService.get());
+        mServiceBuilder.RegisterService(mExService.get());
+    }
 
-        mGRPCDaemon = b.BuildAndStart();
+    void Server::run()
+    {
+        mGRPCDaemon = mServiceBuilder.BuildAndStart();
 
         std::cout << "Server listening on " << SERVER_ADDRESS << std::endl;
         mGRPCDaemon->Wait();
