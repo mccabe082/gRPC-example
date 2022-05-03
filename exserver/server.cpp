@@ -19,19 +19,22 @@ namespace ExServer
     {
         // not entirely sure what this line does atm...
         grpc::EnableDefaultHealthCheckService(true);
-
-        mServiceBuilder.AddListeningPort(serverAddress, grpc::InsecureServerCredentials());
-        mServiceBuilder.SetDefaultCompressionAlgorithm(GRPC_COMPRESS_GZIP);
-
-        mExService = std::make_unique<ServiceEndPoints>();
-        mServiceBuilder.RegisterService(mExService.get());
     }
 
-    void Server::run()
+    void Server::setup()
     {
-        mGRPCDaemon = mServiceBuilder.BuildAndStart();
+        mServiceBuilderPtr->AddListeningPort(SERVER_ADDRESS, grpc::InsecureServerCredentials());
+        mServiceBuilderPtr->SetDefaultCompressionAlgorithm(GRPC_COMPRESS_GZIP);
+
+        mExServicePtr = std::make_unique<ServiceEndPoints>();
+        mServiceBuilderPtr->RegisterService(mExServicePtr.get());
+    }
+
+    void Server::launch()
+    {
+        mGRPCDaemonPtr = mServiceBuilderPtr->BuildAndStart();
 
         std::cout << "Server listening on " << SERVER_ADDRESS << std::endl;
-        mGRPCDaemon->Wait();
+        mGRPCDaemonPtr->Wait();
     }
 }
