@@ -28,11 +28,15 @@ namespace ExServer
 
         mExServicePtr = std::make_unique<ServiceEndPoints>();
         mServiceBuilderPtr->RegisterService(mExServicePtr.get());
+
+        mCompletionQPtr = mServiceBuilderPtr->AddCompletionQueue();
     }
 
     void Server::launch()
     {
         mGRPCDaemonPtr = mServiceBuilderPtr->BuildAndStart();
+
+        mExServicePtr->RequestunaryRPC()
 
         std::cout << "Server listening on " << SERVER_ADDRESS << std::endl;
         mGRPCDaemonPtr->Wait();

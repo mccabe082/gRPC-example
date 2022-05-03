@@ -50,3 +50,4 @@ PRIVATE
         protobuf::libprotobuf
 )
 add_subdirectory(exserviceapi)
+add_subdirectory(exasyncserviceapi)
