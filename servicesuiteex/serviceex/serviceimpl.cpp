@@ -1,5 +1,7 @@
 #include "serviceimpl.h"
 #include <string>
+#include <thread>
+#include <future>
 #include <iostream>
 
 namespace
@@ -92,12 +94,21 @@ namespace ServiceSuiteEx
         std::cout << "\nServer receiving/sending stream from/to Client:\n\t" << std::flush;
         int i = 0;
         RequestMsgEx request;
-        while (stream->Read(&request))
-        {
-            ResponseMsgEx response;
-            response.set_bar(std::to_string(++i));
-            stream->Write(response);
-        }
+
+        auto func = [&](){
+            while (stream->Read(&request))
+            {
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                ResponseMsgEx response;
+                response.set_bar(std::to_string(++i));
+                stream->Write(response);
+            }
+        };
+
+        // std::thread t(func);
+        // t.detach();
+        auto f = std::async(func);
+        f.get();
         std::cout << "\n\t...streaming complete\n\n" << std::flush;
 
         return grpc::Status::OK;

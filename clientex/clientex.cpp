@@ -1,4 +1,5 @@
 #include "clientex.h"
+#include <thread>
 
 namespace
 {
@@ -134,6 +135,7 @@ void ClientEx::callBidirectionalStreamingRPC()
     {
         request.set_foo(std::to_string(i));
         stream->Write(request);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
         stream->Read(&response);
         std::cout << response.bar() << "." << std::flush;
     }
