@@ -7,7 +7,7 @@ service ServiceEx
   rpc unaryRPC (RequestMsgEx) returns (ResponseMsgEx) {}
   rpc serverStreamingRPC (RequestMsgEx) returns (stream ResponseMsgEx) {}
   rpc clientStreamingRPC (stream RequestMsgEx) returns (ResponseMsgEx) {}
-  rpc bidirectionalStreamingRPC (stream RequestMsgEx) returns (stream ResponseMsgEx) {}
+  rpc bidirectionalStreamingRPC (stream StreamControl) returns (stream ResponseMsgEx) {}
 }
 
 message RequestMsgEx {
@@ -16,4 +16,13 @@ message RequestMsgEx {
 
 message ResponseMsgEx {
   string bar = 1;
+}
+
+message StreamControl {
+  enum ControlFlag {
+    START_STREAMING = 0;
+    STOP_STREAMING = 1;
+    ACKNOWLEDGEMENT = 2;
+  }
+  ControlFlag value = 1;
 }

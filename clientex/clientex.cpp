@@ -127,22 +127,29 @@ void ClientEx::callBidirectionalStreamingRPC()
 {
     std::cout << "Client requesting bi-directional stream with server:\n\t" << std::flush;
     grpc::ClientContext c;
-    ServiceSuiteEx::RequestMsgEx request;
+    ServiceSuiteEx::StreamControl request;
     ServiceSuiteEx::ResponseMsgEx response;
     auto&& stream = _stub->bidirectionalStreamingRPC(&c);
 
+    request.set_value(ServiceSuiteEx::StreamControl_ControlFlag_START_STREAMING);
+    stream->Write(request);  std::cout << "\t - request start streaming - \n\t" << std::flush;
     for (int i = 0; i<10; ++i)
     {
-        request.set_foo(std::to_string(i));
-        stream->Write(request);
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        request.set_value(ServiceSuiteEx::StreamControl_ControlFlag_ACKNOWLEDGEMENT);
+        stream->Write(request);  std::cout << "\t - sending frame acknowledgement - \n\t" << std::flush;
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
         stream->Read(&response);
         std::cout << response.bar() << "." << std::flush;
     }
+    request.set_value(ServiceSuiteEx::StreamControl_ControlFlag_STOP_STREAMING);
+    stream->Write(request);  std::cout << "\t - request stop streaming - \n\t" << std::flush;
     std::cout << std::endl;
 
+    std::cout << "\t - request writes done - \n\t" << std::flush;
     stream->WritesDone();
+    std::cout << "\t - request finish - \n\t" << std::flush;
     grpc::Status status = stream->Finish();
+    std::cout << "\t - dfdsdf - \n\t" << std::flush;
 
     if (status.ok())
     {

@@ -14,7 +14,7 @@ namespace ServiceSuiteEx
 
         grpc::Status clientStreamingRPC(grpc::ServerContext* context, grpc::ServerReader<RequestMsgEx>* reader, ResponseMsgEx* response) override;
 
-        grpc::Status bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, RequestMsgEx>* stream) override;
+        grpc::Status bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, StreamControl>* stream) override;
 
         void run();
     };

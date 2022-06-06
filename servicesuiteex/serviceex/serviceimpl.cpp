@@ -89,29 +89,76 @@ namespace ServiceSuiteEx
         return grpc::Status::OK;
     }
 
-    grpc::Status ServiceImpl::bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, RequestMsgEx>* stream)
+    grpc::Status ServiceImpl::bidirectionalStreamingRPC(grpc::ServerContext* context, grpc::ServerReaderWriter<ResponseMsgEx, StreamControl>* stream)
     {
         std::cout << "\nServer receiving/sending stream from/to Client:\n\t" << std::flush;
-        int i = 0;
-        RequestMsgEx request;
 
-        auto func = [&](){
-            while (stream->Read(&request))
+        int i = 0;
+        ResponseMsgEx response;
+        StreamControl request;
+
+        std::mutex dumpFrames;  // synchronise client and server
+
+        bool keepStreaming = false;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        auto cameraSim = [&](){
+            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+            auto cameraCallback = [&]() {
+                if(dumpFrames.try_lock()) {
+                    response.set_bar(std::to_string(++i));
+                    stream->Write(response);
+                }
+                std::cout << "." << keepStreaming<< std::flush;
+
+            };
+            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+            while (keepStreaming)
             {
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                ResponseMsgEx response;
-                response.set_bar(std::to_string(++i));
-                stream->Write(response);
+                std::this_thread::sleep_for(std::chrono::microseconds (1000));
+                cameraCallback();
             }
         };
+        std::unique_ptr<std::thread> t;
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // std::thread t(func);
-        // t.detach();
-        auto f = std::async(func);
-        f.get();
-        std::cout << "\n\t...streaming complete\n\n" << std::flush;
+        while (stream->Read(&request))
+        {
+            switch(request.value())
+            {
+                case StreamControl_ControlFlag_START_STREAMING:
+                {
+                    std::cout << "\t - received start streaming command- \n\t" << std::flush;
+                    keepStreaming = true;
+                    std::unique_lock<std::mutex> lock(dumpFrames);
+                    t = std::make_unique<std::thread>(cameraSim);
+                    break;
+                }
+                case StreamControl_ControlFlag_ACKNOWLEDGEMENT:
+                {
+                    std::cout << "\t - received frame acknowledgement- \n\t" << std::flush;
+                    dumpFrames.unlock();
+                    break;
+                }
+                case StreamControl_ControlFlag_STOP_STREAMING:
+                {
+                    std::cout << "\t - received stop streaming command- \n\t" << std::flush;
+                    keepStreaming = false;
+                    dumpFrames.unlock();
+                    std::unique_lock<std::mutex> lock(dumpFrames);
+                    if(t->joinable()) t->join();
+                    std::cout << "\n\t...streaming complete\n\n" << std::flush;
+                    return grpc::Status::OK;
+                }
+                default:
+                {
+                    std::cout << "\t - weird - \n\t" << std::flush;
+                    break;
+                }
+            }
+        }
 
-        return grpc::Status::OK;
+        return grpc::Status(grpc::UNKNOWN,"unspecified error");
     }
 
     void ServiceImpl::run()
