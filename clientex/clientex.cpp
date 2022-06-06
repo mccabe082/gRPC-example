@@ -133,11 +133,11 @@ void ClientEx::callBidirectionalStreamingRPC()
 
     request.set_value(ServiceSuiteEx::StreamControl_ControlFlag_START_STREAMING);
     stream->Write(request);  std::cout << "\t - request start streaming - \n\t" << std::flush;
-    for (int i = 0; i<10; ++i)
+    for (int i = 0; i<10000; ++i)
     {
         request.set_value(ServiceSuiteEx::StreamControl_ControlFlag_ACKNOWLEDGEMENT);
         stream->Write(request);  std::cout << "\t - sending frame acknowledgement - \n\t" << std::flush;
-        std::this_thread::sleep_for(std::chrono::microseconds(200));
+        std::this_thread::sleep_for(std::chrono::microseconds(1));
         stream->Read(&response);
         std::cout << response.bar() << "." << std::flush;
     }
